@@ -1,31 +1,33 @@
 import axios from 'axios';
 
-const baseURL = 'http://your-reef-pi-api-url/';
-const apiKey = 'your-reef-pi-api-key';
+const baseURL = 'http://192.168.68.51/';
+const tempProbeId = 'temp'; // Replace with your actual temperature probe ID
+const phProbeId = 'pH'; // Replace with your actual pH probe ID
 
 const api = axios.create({
-  baseURL,
-  headers: {
-    'Authorization': `Bearer ${apiKey}`
-  }
+  baseURL
 });
 
-export default {
-  // pH Probes
-  getAllPhProbes: () => api.get('/ph_probes'),
-  getPhProbe: (id) => api.get(`/ph_probes/${id}`),
-  createPhProbe: (data) => api.post('/ph_probes', data),
-  updatePhProbe: (id, data) => api.put(`/ph_probes/${id}`, data),
-  deletePhProbe: (id) => api.delete(`/ph_probes/${id}`),
+// Function to get current temperature reading for a probe
+export function getCurrentTemperatureReading() {
+  const temperatureEndpoint = `/api/probes/${tempProbeId}/current_reading`;
+  return api.get(temperatureEndpoint)
+    .then(response => {
+      return response.data.value;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
 
-  // Temperature
-  getAllTemperatureProbes: () => api.get('/temperature_probes'),
-  getTemperatureProbe: (id) => api.get(`/temperature_probes/${id}`),
-  createTemperatureProbe: (data) => api.post('/temperature_probes', data),
-  updateTemperatureProbe: (id, data) => api.put(`/temperature_probes/${id}`, data),
-  deleteTemperatureProbe: (id) => api.delete(`/temperature_probes/${id}`),
-  getCurrentTemperatureReading: (id) => api.get(`/temperature_probes/${id}/current_reading`),
-  
-  // General
-  login: (data) => api.post('/auth/signin', data)
-};
+// Function to get current pH reading for a probe
+export function getCurrentPHReading() {
+  const phEndpoint = `/api/phprobes/${phProbeId}/readings`;
+  return api.get(phEndpoint)
+    .then(response => {
+      return response.data[0].value;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
